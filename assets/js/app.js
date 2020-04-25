@@ -3,7 +3,7 @@ const textEl = document.querySelector('#typing-text');
 textEl.textContent = text;
 let letterOn = 0; // TODO: Rename this variable
 const interval = 1000;
-const totalTime = 5;
+const totalTime = 30;
 let remainingTime = totalTime;
 let letterCount = 0;
 let errors = 0;
@@ -25,6 +25,7 @@ function gameOver() {
     clearInterval(timer);
     document.querySelector('#score').textContent =
         Math.floor((letterCount / 5 / totalTime) * 60) + ' WPM';
+    document.querySelector('#errors').textContent = errors + ' Errors';
     timer = undefined;
     remainingTime = totalTime;
     gameOn = false;
@@ -33,6 +34,7 @@ function gameOver() {
 
 function startGame() {
     letterCount = 0;
+    errors = 0;
     letterOn = 0;
     textEl.textContent = text;
     timerEl.textContent = `${remainingTime} seconds`;
