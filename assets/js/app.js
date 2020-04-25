@@ -1,4 +1,3 @@
-// BUG: Shift key causes failure....
 const text2 = 'Hello world!';
 const textEl = document.querySelector('#typing-text');
 textEl.textContent = text;
@@ -7,15 +6,12 @@ const interval = 1000;
 const totalTime = 5;
 let remainingTime = totalTime;
 let letterCount = 0;
+let errors = 0;
+let gameOn = true;
 const timerEl = document.querySelector('#timer');
 timerEl.textContent = `${remainingTime} seconds`;
 let timer;
-// 1 second = 1000 ms ->
-// 30 seconds * 1000 ms = 30000 ms
-// Keep count
-// Set a timer
-
-// formula for WPM = typedCharacters/5/Time -> 30 second
+const gameOverModal = $('#game-over-modal');
 
 function triggerTimer() {
     console.log('TRIGGER TIMER');
@@ -28,18 +24,31 @@ function triggerTimer() {
 
 function gameOver() {
     clearInterval(timer);
+    console.log((letterCount / 5 / totalTime) * 60);
+    document.querySelector('#score').textContent =
+        Math.floor((letterCount / 5 / totalTime) * 60) + ' WPM';
     timer = undefined;
     remainingTime = totalTime;
+    gameOn = false;
     console.log('GAME OVER');
+    gameOverModal.modal('show');
+}
+
+function startGame() {
+    console.log('START GAME');
+    letterCount = 0;
+    textEl.textContent = text;
+    timerEl.textContent = `${remainingTime} seconds`;
+    gameOn = true;
 }
 
 document.body.addEventListener('keyup', (event) => {
+    if (event.key === 'Shift' || !gameOn) return;
     if (!timer) triggerTimer();
     if (remainingTime >= 0) {
         letterCount++;
         console.group('KEY UP');
         console.log('EVENT KEY', event.key);
-        console.log('TEXT LETTER', text[onLetter]);
         if (event.key === text[onLetter]) {
             console.log('SUCCESS');
             onLetter++;
@@ -52,6 +61,7 @@ document.body.addEventListener('keyup', (event) => {
         } else {
             // TODO: Stretch Goal::: ADD AUDITORY CLUE
             console.log('FAILURE');
+            errors++;
             const goodText = `<span class="text-primary border-bottom border-primary">${text.slice(
                 0,
                 onLetter
@@ -62,4 +72,8 @@ document.body.addEventListener('keyup', (event) => {
         }
         console.groupEnd();
     }
+});
+
+gameOverModal.on('hidden.bs.modal', (event) => {
+    startGame();
 });
